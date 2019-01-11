@@ -262,11 +262,17 @@
       } else {
         emojiSpan = clickTarget.parent().find('.emoji');
       }
-
       var emojiShortcode = emojiSpan.attr('class').split('emoji-')[1];
       var emojiUnicode = toUnicode(findEmoji(emojiShortcode).unicode[defaults.emojiSet]);
 
-      insertAtCaret(this.element, emojiUnicode);
+      if (this.$el[0].classList[0]==='editable-message') {
+        console.log('rtf');
+        insertEmojiAtCursorInContentEditable(this.$el, emojiUnicode);
+      } else {
+        console.log('textarea');
+        insertEmojiAtCursorInTextArea(this.element, emojiUnicode);
+      }
+
       addToLocalStorage(emojiShortcode);
       updateRecentlyUsed(emojiShortcode);
 
@@ -541,7 +547,46 @@
     }
   }
 
-  function insertAtCaret(inputField, myValue) {
+
+  // For contenteditable
+
+  function insertEmojiAtCursorInContentEditable(inputArea, emoji) {
+    var sel, range;
+    console.log('in insert emoji', inputArea);
+
+    if (window.getSelection()) {
+      sel = window.getSelection();
+      if (sel.getRangeAt && sel.rangeCount) {
+        console.log('in insert emoji if', inputArea);
+        inputArea[0].textContent += emoji;
+        inputArea.focus();
+        // range = sel.getRangeAt(0);
+        // range.deleteContents();
+        // range.insertNode(emoji);
+      // } else {
+        // console.log('in insert emoji else', inputArea);
+        // inputArea[0].appendChild(emoji);
+      }
+      sel.removeAllRanges();
+    }
+  }
+  // function insertTextAtCursor(text) {
+  //   var sel, range;
+  //   if (window.getSelection) {
+  //     sel = window.getSelection();
+  //     if (sel.getRangeAt && sel.rangeCount) {
+  //       range = sel.getRangeAt(0);
+  //       range.deleteContents();
+  //       range.insertNode( document.createTextNode(text) );
+  //     }
+  //   } else if (document.selection && document.selection.createRange) {
+  //     document.selection.createRange().text = text;
+  //   }
+  // }
+
+
+
+  function insertEmojiAtCursorInTextArea(inputField, myValue) {
     if (document.selection) {
       //For browsers like Internet Explorer
       inputField.focus();
