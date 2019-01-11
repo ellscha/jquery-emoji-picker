@@ -257,6 +257,7 @@
 
     emojiClicked: function(e) { var clickTarget = $(e.target);
       var emojiSpan;
+      this.element.focus();
       if (clickTarget.is('em')) {
         emojiSpan = clickTarget.find('span');
       } else {
@@ -264,12 +265,11 @@
       }
       var emojiShortcode = emojiSpan.attr('class').split('emoji-')[1];
       var emojiUnicode = toUnicode(findEmoji(emojiShortcode).unicode[defaults.emojiSet]);
+      var emoji = angular.element('<span></span>').html(emojiUnicode)[0];
 
       if (this.$el[0].classList[0]==='editable-message') {
-        console.log('rtf');
-        insertEmojiAtCursorInContentEditable(this.$el, emojiUnicode);
+        insertEmojiAtCursorInContentEditable(this.$el, emoji);
       } else {
-        console.log('textarea');
         insertEmojiAtCursorInTextArea(this.element, emojiUnicode);
       }
 
@@ -283,6 +283,8 @@
       var event = document.createEvent("HTMLEvents");
       event.initEvent("input", true, true);
       this.element.dispatchEvent(event);
+
+      this.element.focus();
     },
 
     emojiMouseover: function(e) {
@@ -547,44 +549,19 @@
     }
   }
 
-
   // For contenteditable
-
   function insertEmojiAtCursorInContentEditable(inputArea, emoji) {
-    var sel, range;
-    console.log('in insert emoji', inputArea);
+    var sel;
 
     if (window.getSelection()) {
       sel = window.getSelection();
       if (sel.getRangeAt && sel.rangeCount) {
-        console.log('in insert emoji if', inputArea);
-        inputArea[0].textContent += emoji;
-        inputArea.focus();
-        // range = sel.getRangeAt(0);
-        // range.deleteContents();
-        // range.insertNode(emoji);
-      // } else {
-        // console.log('in insert emoji else', inputArea);
-        // inputArea[0].appendChild(emoji);
+        inputArea[0].appendChild(emoji);
+        emoji.focus();
       }
       sel.removeAllRanges();
     }
   }
-  // function insertTextAtCursor(text) {
-  //   var sel, range;
-  //   if (window.getSelection) {
-  //     sel = window.getSelection();
-  //     if (sel.getRangeAt && sel.rangeCount) {
-  //       range = sel.getRangeAt(0);
-  //       range.deleteContents();
-  //       range.insertNode( document.createTextNode(text) );
-  //     }
-  //   } else if (document.selection && document.selection.createRange) {
-  //     document.selection.createRange().text = text;
-  //   }
-  // }
-
-
 
   function insertEmojiAtCursorInTextArea(inputField, myValue) {
     if (document.selection) {
