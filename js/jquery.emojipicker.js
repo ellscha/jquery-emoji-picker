@@ -257,7 +257,6 @@
 
     emojiClicked: function(e) { var clickTarget = $(e.target);
       var emojiSpan;
-      this.element.focus();
       if (clickTarget.is('em')) {
         emojiSpan = clickTarget.find('span');
       } else {
@@ -283,8 +282,6 @@
       var event = document.createEvent("HTMLEvents");
       event.initEvent("input", true, true);
       this.element.dispatchEvent(event);
-
-      this.element.focus();
     },
 
     emojiMouseover: function(e) {
@@ -551,16 +548,26 @@
 
   // For contenteditable
   function insertEmojiAtCursorInContentEditable(inputArea, emoji) {
-    var sel;
-
-    if (window.getSelection()) {
+    var sel, range;
+    // This line focuses on the beginning and inserts @ pos 0 inputArea.focus();
+    if (window.getSelection) {
       sel = window.getSelection();
       if (sel.getRangeAt && sel.rangeCount) {
+        range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(emoji);
+      } else {
         inputArea[0].appendChild(emoji);
-        emoji.focus();
       }
       sel.removeAllRanges();
     }
+    //   if (sel.getRangeAt && sel.rangeCount > 0) {
+    //     range.setStartAfter(emoji);
+    //     range.setEndAfter(emoji);
+    //
+    //     sel.removeAllRanges();
+    //     sel.addRange(range)
+    //   }
   }
 
   function insertEmojiAtCursorInTextArea(inputField, myValue) {
