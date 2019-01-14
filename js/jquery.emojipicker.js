@@ -549,25 +549,21 @@
   // For contenteditable
   function insertEmojiAtCursorInContentEditable(inputArea, emoji) {
     var sel, range;
-    // This line focuses on the beginning and inserts @ pos 0 inputArea.focus();
-    if (window.getSelection) {
-      sel = window.getSelection();
-      if (sel.getRangeAt && sel.rangeCount) {
+
+    sel = window.getSelection();
+
+    console.log(sel);
+      if (sel.getRangeAt && sel.rangeCount > 0) {
         range = sel.getRangeAt(0);
         range.deleteContents();
+        console.log('before insert', emoji, range);
         range.insertNode(emoji);
-      } else {
-        inputArea[0].appendChild(emoji);
+        range.setStartAfter(emoji);
+        range.setEndAfter(emoji);
+
+        sel.removeAllRanges();
+        sel.addRange(range)
       }
-      sel.removeAllRanges();
-    }
-    //   if (sel.getRangeAt && sel.rangeCount > 0) {
-    //     range.setStartAfter(emoji);
-    //     range.setEndAfter(emoji);
-    //
-    //     sel.removeAllRanges();
-    //     sel.addRange(range)
-    //   }
   }
 
   function insertEmojiAtCursorInTextArea(inputField, myValue) {
