@@ -1,24 +1,24 @@
 ;(function($) {
 
   var pluginName = "emojiPicker",
-      defaults = {
-        width: '200',
-        height: '350',
-        position: 'right',
-        fadeTime: 100,
-        iconColor: 'black',
-        iconBackgroundColor: '#eee',
-        recentCount: 36,
-        emojiSet: 'apple',
-        container: 'body',
-        button: true
-      };
+    defaults = {
+      width: '200',
+      height: '350',
+      position: 'right',
+      fadeTime: 100,
+      iconColor: 'black',
+      iconBackgroundColor: '#eee',
+      recentCount: 36,
+      emojiSet: 'apple',
+      container: 'body',
+      button: true
+    };
 
   var MIN_WIDTH = 280,
-      MAX_WIDTH = 600,
-      MIN_HEIGHT = 100,
-      MAX_HEIGHT = 350,
-      MAX_ICON_HEIGHT = 50;
+    MAX_WIDTH = 600,
+    MIN_HEIGHT = 100,
+    MAX_HEIGHT = 350,
+    MAX_ICON_HEIGHT = 50;
 
   var categories = [
     { name: 'people', label: 'People' },
@@ -57,9 +57,9 @@
     }
 
     var possiblePositions = [ 'left',
-                              'right'
-                              /*,'top',
-                              'bottom'*/];
+      'right'
+      /*,'top',
+      'bottom'*/];
     if($.inArray(this.settings.position,possiblePositions) == -1) {
       this.settings.position = defaults.position; //current default
     }
@@ -104,7 +104,7 @@
           .width(iconHeight)
           .addClass(this.settings.iconColor)
           .css('backgroundColor', this.settings.iconBackgroundColor);
-          this.$wrapper.append( this.$icon );
+        this.$wrapper.append( this.$icon );
       }
 
     },
@@ -262,11 +262,16 @@
       } else {
         emojiSpan = clickTarget.parent().find('.emoji');
       }
-
       var emojiShortcode = emojiSpan.attr('class').split('emoji-')[1];
       var emojiUnicode = toUnicode(findEmoji(emojiShortcode).unicode[defaults.emojiSet]);
+      var emoji = angular.element('<span></span>').html(emojiUnicode)[0];
 
-      insertAtCaret(this.element, emojiUnicode);
+      if (this.$el[0].classList[0]==='editable-message') {
+        insertEmojiAtCursorInContentEditable(this.$el, emoji);
+      } else {
+        insertEmojiAtCursorInTextArea(this.element, emojiUnicode);
+      }
+
       addToLocalStorage(emojiShortcode);
       updateRecentlyUsed(emojiShortcode);
 
@@ -312,8 +317,8 @@
       var heightOfSectionsToPageTop = $section.parent().offset().top;
 
       var scrollDistance = heightOfSectionsHidden
-                           + heightOfSectionToPageTop
-                           - heightOfSectionsToPageTop;
+        + heightOfSectionToPageTop
+        - heightOfSectionsToPageTop;
 
       $('.sections').off('scroll'); // Disable scroll event until animation finishes
 
@@ -466,12 +471,12 @@
     var categories_length = categories.length;
     for (var i = 0; i < categories_length; i++) {
       nodes.push('<div class="tab' +
-      ( !localStorageSupport && i == 0 ? ' active' : '' ) +
-      '" data-tab="' +
-      categories[i].name +
-      '"><div class="emoji emoji-tab-' +
-      categories[i].name +
-      '"></div></div>');
+        ( !localStorageSupport && i == 0 ? ' active' : '' ) +
+        '" data-tab="' +
+        categories[i].name +
+        '"><div class="emoji emoji-tab-' +
+        categories[i].name +
+        '"></div></div>');
     }
     nodes.push('</nav>');
     nodes.push('<div class="sections">');
@@ -541,7 +546,33 @@
     }
   }
 
-  function insertAtCaret(inputField, myValue) {
+  // For contenteditable
+  function insertEmojiAtCursorInContentEditable(inputArea, emoji) {
+    var sel, range;
+
+    sel = window.getSelection();
+
+    console.log(sel);
+    if (sel.getRangeAt && sel.rangeCount > 0) {
+      range = sel.getRangeAt(0);
+      range.deleteContents();
+      console.log('before insert', emoji, range);
+      //TODO: why isn't insert working, this should be the answer as well as what sel is returning, might not be correct s
+      // range.insertNode(emoji);
+      //Trying some things. Will delete when I figure out the final solution to this issue.
+      // var start = inputArea[0].selectionStart();
+      // var end = inputArea[0].selectionEnd();
+      // TODO: or to take note of at least, append child is obviously going to put it at the end of the text, but at least it is being inserted.
+      inputArea[0].appendChild(emoji);
+      range.setStartAfter(emoji);
+      range.setEndAfter(emoji);
+
+      sel.removeAllRanges();
+      sel.addRange(range)
+    }
+  }
+
+  function insertEmojiAtCursorInTextArea(inputField, myValue) {
     if (document.selection) {
       //For browsers like Internet Explorer
       inputField.focus();
@@ -623,14 +654,14 @@
   if (!String.fromCodePoint) {
     // ES6 Unicode Shims 0.1 , © 2012 Steven Levithan http://slevithan.com/ , MIT License
     String.fromCodePoint = function fromCodePoint () {
-        var chars = [], point, offset, units, i;
-        for (i = 0; i < arguments.length; ++i) {
-            point = arguments[i];
-            offset = point - 0x10000;
-            units = point > 0xFFFF ? [0xD800 + (offset >> 10), 0xDC00 + (offset & 0x3FF)] : [point];
-            chars.push(String.fromCharCode.apply(null, units));
-        }
-        return chars.join("");
+      var chars = [], point, offset, units, i;
+      for (i = 0; i < arguments.length; ++i) {
+        point = arguments[i];
+        offset = point - 0x10000;
+        units = point > 0xFFFF ? [0xD800 + (offset >> 10), 0xDC00 + (offset & 0x3FF)] : [point];
+        chars.push(String.fromCharCode.apply(null, units));
+      }
+      return chars.join("");
     }
   }
 
