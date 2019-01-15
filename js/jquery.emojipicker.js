@@ -262,7 +262,7 @@
       } else {
         emojiSpan = clickTarget.parent().find('.emoji');
       }
-      
+
       var emojiShortcode = emojiSpan.attr('class').split('emoji-')[1];
       var emojiUnicode = toUnicode(findEmoji(emojiShortcode).unicode[defaults.emojiSet]);
       var emoji = angular.element('<span></span>').html(emojiUnicode)[0];
@@ -553,17 +553,9 @@
 
     sel = window.getSelection();
 
-    console.log(sel);
     if (sel.getRangeAt && sel.rangeCount > 0) {
       range = sel.getRangeAt(0);
       range.deleteContents();
-      console.log('before insert', emoji, range);
-      //TODO: why isn't insert working, this should be the answer as well as what sel is returning, might not be correct s
-      // range.insertNode(emoji);
-      //Trying some things. Will delete when I figure out the final solution to this issue.
-      // var start = inputArea[0].selectionStart();
-      // var end = inputArea[0].selectionEnd();
-      // TODO: or to take note of at least, append child is obviously going to put it at the end of the text, but at least it is being inserted.
       inputArea[0].appendChild(emoji);
       range.setStartAfter(emoji);
       range.setEndAfter(emoji);
