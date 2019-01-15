@@ -262,6 +262,7 @@
       } else {
         emojiSpan = clickTarget.parent().find('.emoji');
       }
+      
       var emojiShortcode = emojiSpan.attr('class').split('emoji-')[1];
       var emojiUnicode = toUnicode(findEmoji(emojiShortcode).unicode[defaults.emojiSet]);
       var emoji = angular.element('<span></span>').html(emojiUnicode)[0];
