@@ -565,6 +565,7 @@
     }
   }
 
+  // For textarea
   function insertEmojiAtCursorInTextArea(inputField, myValue) {
     if (document.selection) {
       //For browsers like Internet Explorer
